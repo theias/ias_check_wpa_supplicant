@@ -64,7 +64,10 @@ wpa_pid_file=$(mktemp /tmp/ias_check_wpa_supplicant-wpa_supplicant_pid.XXXXXX)
 debug_message "Running wpa_supplicant."
 debug_message "wpa_pid_file: $wpa_pid_file"
 
+# q - suppress debugging info
+# B - daemonize
 wpa_supplicant \
+	- q \
 	-B \
 	-i "$device" \
 	-c "$config" \
@@ -86,24 +89,32 @@ debug_message "dhclient_pid_file: $dhclient_pid_file"
 
 dhclient -pf "$dhclient_pid_file" "$device" &
 
-local found_ip
+found_ip=""
 
 for i in {1..30}
 do
 	sleep 1
 	debug_message "Looping."
-
+	
+	device_status=$( ip_br_device_status "$device")
+	
+	if [[ "$device_status" != "UP" ]]
+	then
+		debug_message "Device $device status: $device_status"
+		continue
+	fi
+	
 	found_ip=$( check_for_ip_br_ipv4 "$device" "$wanted_ip")
-	local result=$?
+	result=$?
 	debug_message "Found IP: $found_ip"
 	debug_message "Result from check_for_ip_br : $result"
-	if [[ check_for_ip_br ]]
+	if [[ "$result" == "0" ]]
 	then
 		break
 	fi
 	
 done
 
-clean_up_and_exit
+clean_up_and_exit "Got ip: $found_ip"
 
 

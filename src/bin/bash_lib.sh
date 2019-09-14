@@ -9,11 +9,30 @@ function kill_pid_from_file
 {
 	local file_name="$1"
 	
-	if [[ -e "$file_name" ]]
+	if [[ -f "$file_name" ]]
 	then
-	
-		kill $( cat "$file_name" )
-		rm -f "$file_name"
+		local pid=$( cat "$file_name" )
+		
+		if [[ ! -z "$pid" ]]
+		then
+		
+			debug_message "Killing $pid from $file_name"
+			kill $pid
+			rm -f "$file_name"
+		else
+			debug_message "Didn't get pid from $file_name .  Going for dirty kill..."
+			
+			pid=$( \
+				ps wwaux \
+				| grep "$file_name" \
+				| grep -v grep \
+				| awk '{print $2}' \
+			)
+
+			debug_message "Killing $pid from $file_name"
+			kill $pid
+			
+		fi
 	fi
 }
 
