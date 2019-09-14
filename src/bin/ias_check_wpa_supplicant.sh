@@ -2,13 +2,57 @@
 
 device="$1"; shift
 config="$1"; shift;
-wanted_ip="$1"
+wanted_ip_regex="$1"
+
+# NAME
+#	ias_check_wpa_supplicant - nagios check for a wireless network
+#
+# SYNOPSIS
+#	ias_check_wpa_supplicant.sh device wpa_supplicant_config wanted_ip_regex
+#
+# DESCRIPTION
+#	This script attempts to, with a given device:
+#	* Connect to a wireless network
+#	* Get an IP address with dhclient
+#	* Returns an appropriate nagios status
+#
+# Here's an example wpa supplicant config file that I use on my home network:
+# network={
+#	ssid="SomeSSID"
+#	scan_ssid=1
+#	key_mgmt=WPA-PSK
+#	psk="SuperSecretPassword"
+# }
+#
+# DESIGN GOALS
+#	* Not otherwise break networking on the box
+#
+# USAGE
+#	* It must be run as root.
+#	* THe device must already be in the "DOWN" state when the script starts.
+#
+# You'll want Network Manager to be disabled for the interface.
+# You can accomplish this by adding the following to Network Manager's
+# configuration file:
+#
+##
+#	[main]
+#	plugins=keyfile
+# 
+#	[keyfile]
+#	Make sure mac is lower case. Separated by semicolons.
+#	unmanaged-devices=mac:c0:ff:ee:c0:ff:ee
+##
+#
+# DEBUGGING
+#	Turn "DEBUG_MESSAGES" to 1.
+
+DEBUG_MESSAGES=1
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 . "$DIR/bash_lib.sh"
 
 start_time=$( date +%s )
-DEBUG_MESSAGES=1
 nagios_service_name="ias_check_wpa_supplicant $device $config"
 
 nagios_status="OK"
@@ -51,7 +95,7 @@ then
 	clean_up_and_exit "Error: config file doesn't exist or is unspecified."
 fi
 
-if [[ -z "$wanted_ip" ]]
+if [[ -z "$wanted_ip_regex" ]]
 then
 	nagios_status="UNKNOWN"
 	nagios_exit=3
@@ -98,11 +142,11 @@ debug_message "Running dhclient."
 dhclient_pid_file=$(mktemp /tmp/ias_check_wpa_supplicant-dhclient_pid.XXXXXX)
 debug_message "dhclient_pid_file: $dhclient_pid_file"
 
-dhclient -pf "$dhclient_pid_file" "$device" > /dev/null
+dhclient -pf "$dhclient_pid_file" "$device" > /dev/null &
 
 found_ip=""
 
-for i in {1..30}
+for i in {1..15}
 do
 	sleep 1
 	debug_message "Looping."
@@ -115,17 +159,20 @@ do
 		continue
 	fi
 	
-	found_ip=$( check_for_ip_br_ipv4 "$device" "$wanted_ip")
+	found_ip=$( check_for_ip_br_ipv4 "$device" "$wanted_ip_regex")
 	result=$?
 	debug_message "Found IP: $found_ip"
 	debug_message "Result from check_for_ip_br : $result"
 	if [[ "$result" == "0" ]]
 	then
-		break
+		clean_up_and_exit "Got ip: $found_ip"
 	fi
 	
 done
 
-clean_up_and_exit "Got ip: $found_ip"
+# debug_message "Sleeping while connected."
+# sleep 30
 
-
+nagios_status="CRITICAL"
+nagios_exit=2
+clean_up_and_exit "TIMEOUT.  IP regex: $wanted_ip_regex . Got IP: $found_ip"

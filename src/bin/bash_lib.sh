@@ -10,6 +10,12 @@ function debug_message
 
 function kill_pid_from_file
 {
+	# Reads a pid from a file.
+	# If it finds the pid in the file, it runs kill $pid
+	# If it doesn't find the pid in the file, it searches
+	#	ps wwaux for the file, and kills the pid associated
+	# with that process.
+	
 	local file_name="$1"
 	
 	if [[ -f "$file_name" ]]
@@ -103,6 +109,7 @@ function check_for_ip_br_ipv4
 		return 0
 	else
 		debug_message "IP not found."
+		echo "$ip_from_ip"
 		return 1
 	fi
 
