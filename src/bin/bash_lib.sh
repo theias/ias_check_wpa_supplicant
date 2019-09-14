@@ -64,23 +64,22 @@ function ip_br_device_status
 function check_for_ip_br_ipv4
 {
 	local device="$1"; shift
-	local wanted_ip="$1"
+	local wanted_ip_regex="$1"
 	
 	local ip_br_text=$( ip -br addr show "$device" )
 	debug_message "ip_br_text: ${ip_br_text}"
 	
 	local ip_from_ip=$(echo "$ip_br_text" | awk '{print $3}')
-	local result=$?
 	
-	if [[ "$ip_from_ip" ==  "$wanted_ip" ]]
+	if [[ "$ip_from_ip" =~  "$wanted_ip_regex" ]]
 	then
-		debug_message "Wanted IP $wanted_ip found."
+		debug_message "Wanted IP regex $wanted_ip_regex matched $ip_from_ip."
+		echo "$ip_from_ip"
+		return 0
 	else
 		debug_message "IP not found."
+		return 1
 	fi
 
-	return "$result"
 }
-
-
 
