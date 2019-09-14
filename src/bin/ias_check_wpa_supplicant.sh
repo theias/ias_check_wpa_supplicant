@@ -48,7 +48,7 @@ wanted_ip_regex="$1"
 #	Turn "DEBUG_MESSAGES" to 1.
 #
 
-DEBUG_MESSAGES=0
+DEBUG_MESSAGES=1
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 . "$DIR/bash_lib.sh"

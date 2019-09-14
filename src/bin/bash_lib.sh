@@ -59,7 +59,8 @@ function clean_up_and_exit
 	# Flush current IP address(s) from device:
 	ip addr flush dev "$device"
 
-	echo "$nagios_status: $nagios_service_name | ${duration}seconds"
+	echo "$nagios_status: $nagios_service_name " \
+		"duration: ${duration}seconds| duration=${duration}seconds"
 
 	if [[ ! -z "$msg" ]]
 	then
