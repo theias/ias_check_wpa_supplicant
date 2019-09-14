@@ -17,7 +17,7 @@ wpa_supplicant \
 	-B \
 	-i "$device" \
 	-c "$config" \
-       	-P "$tmpfile"
+	-P "$tmpfile"
 
 result=$?
 
@@ -29,6 +29,13 @@ then
 fi
 
 pid=$( cat "$tmpfile"  )
+
+dhclient "$device"
+
+for i in {1..30}
+do
+	sleep 1
+done
 
 function clean_up_and_exit
 {
