@@ -46,6 +46,10 @@ wanted_ip_regex="$1"
 #
 # DEBUGGING
 #	Turn "DEBUG_MESSAGES" to 1.
+#
+# TODO / ISSUES(?)
+# I have in my notes to add the device to /etc/network/interfaces
+# I don't know if that's necessary any more.
 
 DEBUG_MESSAGES=0
 
