@@ -2,7 +2,10 @@
 
 function debug_message
 {
-	>&2 echo "DEBUG: $@"
+	if [[ "$DEBUG_MESSAGES" == 1 ]]
+	then
+		>&2 echo "DEBUG: $@"
+	fi
 }
 
 function kill_pid_from_file
@@ -46,6 +49,9 @@ function clean_up_and_exit
 
 	kill_pid_from_file "$dhclient_pid_file"
 	kill_pid_from_file "$wpa_pid_file"	
+
+	# Flush current IP address(s) from device:
+	ip addr flush dev "$device"
 
 	echo "$nagios_status: $nagios_service_name | ${duration}seconds"
 

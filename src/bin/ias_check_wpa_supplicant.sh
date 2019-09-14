@@ -4,10 +4,11 @@ device="$1"; shift
 config="$1"; shift;
 wanted_ip="$1"
 
-. bash_lib.sh
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+. "$DIR/bash_lib.sh"
 
 start_time=$( date +%s )
-
+DEBUG_MESSAGES=1
 nagios_service_name="ias_check_wpa_supplicant $device $config"
 
 nagios_status="OK"
@@ -59,6 +60,11 @@ fi
 
 
 # Main section
+
+# Flush current IP address(s) from device:
+
+ip addr flush dev "$device"
+
 wpa_pid_file=$(mktemp /tmp/ias_check_wpa_supplicant-wpa_supplicant_pid.XXXXXX)
 
 debug_message "Running wpa_supplicant."
@@ -71,7 +77,8 @@ wpa_supplicant \
 	-B \
 	-i "$device" \
 	-c "$config" \
-	-P "$wpa_pid_file"
+	-P "$wpa_pid_file" \
+	> /dev/null
 
 result=$?
 
@@ -84,10 +91,14 @@ then
 fi
 
 debug_message "Running dhclient."
+# Here, we have a kuldgy work around to dhclient and apparmor.
+# If we create a dhclient process with a unique file name
+# we can just look it up later using that name and kill the
+# pid.  This is referenced to as a "dirty kill".
 dhclient_pid_file=$(mktemp /tmp/ias_check_wpa_supplicant-dhclient_pid.XXXXXX)
 debug_message "dhclient_pid_file: $dhclient_pid_file"
 
-dhclient -pf "$dhclient_pid_file" "$device" &
+dhclient -pf "$dhclient_pid_file" "$device" > /dev/null
 
 found_ip=""
 
