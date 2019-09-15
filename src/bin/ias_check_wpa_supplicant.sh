@@ -4,7 +4,7 @@
 #	ias_check_wpa_supplicant - nagios check for a wireless network
 #
 # SYNOPSIS
-#	ias_check_wpa_supplicant.sh device wpa_supplicant_config wanted_ip_regex
+#	ias_check_wpa_supplicant.sh -h for usage
 #
 # DESCRIPTION
 #	This script attempts to, with a given device:
@@ -52,6 +52,7 @@ config="~/.config/IAS/ias_check_wpa_supplicant/wpa_supplicant.conf"
 
 duration_warning=15
 duration_critical=45
+stay_connected=0
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 . "$DIR/bash_lib.sh"
@@ -62,7 +63,7 @@ nagios_service_name="ias_check_wpa_supplicant $device $config"
 nagios_status="OK"
 nagios_exit="0"
 
-while getopts ":d:c:r:W:C:D" o; do
+while getopts ":d:c:r:s:W:C:D" o; do
 	case "${o}" in
 		d)
 			device="${OPTARG}"
@@ -82,6 +83,10 @@ while getopts ":d:c:r:W:C:D" o; do
 		D)
 			DISPLAY_MESSAGES=1
 			;;
+		s)
+			stay_connected="${OPTARG}"
+			;;
+
 		h | *)
 			doc_usage
 			exit 1

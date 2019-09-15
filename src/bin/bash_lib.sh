@@ -7,6 +7,7 @@ OPTIONS DEBUG:
 	device: $device
 	config: $config
 	wanted_ip_regex: $wanted_ip_regex
+	stay_connected: $stay_connected
 	duration_warning: $duration_warning
 	duration_critical: $duration_critical
 	DISPLAY_MESSAGES: $DISPLAY_MESSAGES
@@ -22,10 +23,14 @@ Usage:
 		-d device
 		-c wpa_config_file
 		-r (bash regex) - regex which matches IP
+		-s (integer, seconds) - stay connected 
 		-W (integer, seconds) warning threshold
 		-C (integer, seconds) critical timeout
 		-D (flag) enable debugging
-		
+
+"Duration" means the amount of time it took for the connection
+to be established.
+
 EndOfUsage
 
 }
@@ -84,6 +89,12 @@ function clean_up_and_exit
 	
 	local duration="$(($end_time-$start_time))"
 
+	if [[ "$stay_connected" != "0" ]]
+	then
+		debug_message "Staying connected for $stay_connected"
+		sleep "$stay_connected"
+	fi
+	
 	if [ "$duration" -ge "$duration_warning" ]
 	then
 		$nagios_exit=1
