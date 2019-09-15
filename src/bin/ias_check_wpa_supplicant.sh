@@ -31,14 +31,27 @@
 # You can accomplish this by adding the following to Network Manager's
 # configuration file:
 #
-##
+####
 #	[main]
 #	plugins=keyfile
 # 
 #	[keyfile]
 #	Make sure mac is lower case. Separated by semicolons.
 #	unmanaged-devices=mac:c0:ff:ee:c0:ff:ee
-##
+####
+#
+# LICENSE
+# copyright (c) 2019 Martin VanWinkle, Institute for Advanced Study
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
 # DEBUGGING
 #	Turn "DEBUG_MESSAGES" to 1.
@@ -176,15 +189,14 @@ debug_message "Running dhclient."
 dhclient_pid_file=$(mktemp /tmp/ias_check_wpa_supplicant-dhclient_pid.XXXXXX)
 debug_message "dhclient_pid_file: $dhclient_pid_file"
 
-dhclient -pf "$dhclient_pid_file" "$device" > /dev/null &
+dhclient -pf "$dhclient_pid_file" "$device" &
 
 found_ip=""
 
-# "$duration_critical"
-for i in {1..45}
-do
+for (( c=1; c<=$duration_critical; c++ ))
+do  
 	sleep 1
-	debug_message "Looping."
+	debug_message "Looping. $c"
 	
 	device_status=$( ip_br_device_status "$device")
 	
@@ -204,9 +216,6 @@ do
 	fi
 	
 done
-
-# debug_message "Sleeping while connected."
-# sleep 30
 
 nagios_status="CRITICAL"
 nagios_exit=2

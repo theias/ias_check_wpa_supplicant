@@ -18,15 +18,17 @@ EndOfDebugOptions
 function doc_usage {
 	>&2 cat <<EndOfUsage
 Usage:
-	$0
-		-h help
-		-d device
-		-c wpa_config_file
-		-r (bash regex) - regex which matches IP
-		-s (integer, seconds) - stay connected 
-		-W (integer, seconds) warning threshold
-		-C (integer, seconds) critical timeout
-		-D (flag) enable debugging
+  $0
+    -h help
+    -d device.  Required.
+    -c WPA supplicant config file.
+       Default: $config .
+       See man wpa_supplicant.conf
+    -r (bash regex) - regex which matches IP.  Default: $wanted_ip_regex
+    -s (integer, seconds) - stay connected.  Default: $stay_connected
+    -W (integer, seconds) warning threshold. Default: $duration_warning
+    -C (integer, seconds) critical timeout. Default: $duration_critical
+    -D (flag) enable debugging
 
 "Duration" means the amount of time it took for the connection
 to be established.
