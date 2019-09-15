@@ -1,10 +1,11 @@
 # ias_check_wpa_supplicant
 
-Here is an introduction to this project.
+A Nagios check using wpa_supplicant and dhclient to connect to a network,
+get an IP, and use a regular expression to match the IP.
 
 # License
 
-copyright (C) 2017 Author, Institution
+copyright (C) 2017 Martin VanWinkle, Institute for Advanced Study
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,7 +23,11 @@ See
 
 ## Description
 
-* some_script.sh - does something.
+In src/bin:
+
+* ias_check_wpa_supplicant.sh - the nagios check
+* run_me.sh - an example of how to run the script
+* bash_lib.sh - contains functions for this
 
 # Supplemental Documentation
 
@@ -55,7 +60,7 @@ Optionally, you can build a package which will install the binaries in
 
 * rpm-build
 
-## Export a specific tag (or just the source directory)
+## Export a specific tag (or the project directory)
 
 ## Supported Systems
 
