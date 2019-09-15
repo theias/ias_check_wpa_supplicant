@@ -1,9 +1,5 @@
 #!/bin/bash
 
-#device="$1"; shift
-#config="$1"; shift;
-#wanted_ip_regex="$1"
-
 # NAME
 #	ias_check_wpa_supplicant - nagios check for a wireless network
 #
@@ -48,7 +44,7 @@
 #	Turn "DEBUG_MESSAGES" to 1.
 #
 
-DEBUG_MESSAGES=1
+DEBUG_MESSAGES=0
 
 wanted_ip_regex='\/24$'
 device=""
@@ -97,7 +93,6 @@ shift $((OPTIND-1))
 if [[ "$DISPLAY_MESSAGES" == "1" ]]
 then
 	debug_options
-	exit 1
 fi
 
 if [[ -z "$device" ]]
@@ -180,7 +175,8 @@ dhclient -pf "$dhclient_pid_file" "$device" > /dev/null &
 
 found_ip=""
 
-for i in {1.."$duration_critical"}
+# "$duration_critical"
+for i in {1..45}
 do
 	sleep 1
 	debug_message "Looping."

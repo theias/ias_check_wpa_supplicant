@@ -33,7 +33,7 @@ EndOfUsage
 
 function debug_message
 {
-	if [[ "$DEBUG_MESSAGES" == 1 ]]
+	if [[ "$DISPLAY_MESSAGES" == 1 ]]
 	then
 		>&2 echo "DEBUG: $@"
 	fi
