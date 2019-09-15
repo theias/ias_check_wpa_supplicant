@@ -23,6 +23,24 @@ See
 
 ## Description
 
+The idea is that you install it on a system that has a network connection, and a wireless card.
+
+The wireless card should be disabled in NetworkManager per the instructions in the script.
+
+You need an appropriate wpa_supplicant configuration for the network you're going to test.
+
+The script needs to run as root.  I suspect you could use sudo to allow the
+nagios user to run this script specifically.  The script will attempt to
+connect, get an IP, and compare that with a regular expression (which, by
+default just looks for a /24 in the output of "ip -br ...").
+
+If it the connection works, it can optionally stay connected for a number of
+seconds, then it disconnects, and shuts down the dhclient and wpa_supplicant
+processes associated with the test.
+
+I also suspect you could use NRPE on a nagios server to make the call to the
+computer to run the check.
+
 In src/bin:
 
 * ias_check_wpa_supplicant.sh - the nagios check

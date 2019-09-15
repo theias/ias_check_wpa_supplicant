@@ -146,7 +146,7 @@ if [[ -z "$wanted_ip_regex" ]]
 then
 	nagios_status="UNKNOWN"
 	nagios_exit=3
-	clean_up_and_exit "Error: you must specify what IP you will be given."
+	clean_up_and_exit "Error: you must specify a regular expression for the IP to match."
 fi
 
 
