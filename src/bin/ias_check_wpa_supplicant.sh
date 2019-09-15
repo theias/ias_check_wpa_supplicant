@@ -1,8 +1,8 @@
 #!/bin/bash
 
-device="$1"; shift
-config="$1"; shift;
-wanted_ip_regex="$1"
+#device="$1"; shift
+#config="$1"; shift;
+#wanted_ip_regex="$1"
 
 # NAME
 #	ias_check_wpa_supplicant - nagios check for a wireless network
@@ -50,6 +50,13 @@ wanted_ip_regex="$1"
 
 DEBUG_MESSAGES=1
 
+wanted_ip_regex='\/24$'
+device=""
+config="~/.config/IAS/ias_check_wpa_supplicant/wpa_supplicant.conf"
+
+duration_warning=15
+duration_critical=45
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 . "$DIR/bash_lib.sh"
 
@@ -59,20 +66,46 @@ nagios_service_name="ias_check_wpa_supplicant $device $config"
 nagios_status="OK"
 nagios_exit="0"
 
-# Prep section
-# ip_exists=$( ip_br_device_exists "$device")
-# debug_message "IP exists: $ip_exists"
+while getopts ":d:c:r:W:C:D" o; do
+	case "${o}" in
+		d)
+			device="${OPTARG}"
+			;;
+		c)
+			config="${OPTARG}"
+			;;
+		r)
+			wanted_ip_regex="${OPTARG}"
+			;;
+		W)
+			warning_threshold="${OPTARG}"
+			;;
+		C)
+			critical_threshold="${OPTARG}"
+			;;
+		D)
+			DISPLAY_MESSAGES=1
+			;;
+		h | *)
+			doc_usage
+			exit 1
+			;;
+	esac
+done
+shift $((OPTIND-1))
 
-function usage
-{
-	echo "Usage: $0 device config ip_regex"
-}
+if [[ "$DISPLAY_MESSAGES" == "1" ]]
+then
+	debug_options
+	exit 1
+fi
 
 if [[ -z "$device" ]]
 then
 	nagios_status="UNKNOWN"
 	nagios_exit=3
-	clean_up_and_exit "Error: device not specified. $( usage )"
+	doc_usage
+	clean_up_and_exit "Error: device not specified."
 fi
 
 if [[ $( ip_br_device_exists "$device") != "0" ]]
@@ -147,7 +180,7 @@ dhclient -pf "$dhclient_pid_file" "$device" > /dev/null &
 
 found_ip=""
 
-for i in {1..15}
+for i in {1.."$duration_critical"}
 do
 	sleep 1
 	debug_message "Looping."

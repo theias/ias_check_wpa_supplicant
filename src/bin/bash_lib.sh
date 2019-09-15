@@ -1,5 +1,36 @@
 #!/bin/bash
 
+function debug_options
+{
+	>&2 cat <<EndOfDebugOptions
+OPTIONS DEBUG:
+	device: $device
+	config: $config
+	wanted_ip_regex: $wanted_ip_regex
+	duration_warning: $duration_warning
+	duration_critical: $duration_critical
+	DISPLAY_MESSAGES: $DISPLAY_MESSAGES
+EndOfDebugOptions
+
+}
+
+function doc_usage {
+	>&2 cat <<EndOfUsage
+Usage:
+	$0
+		-h help
+		-d device
+		-c wpa_config_file
+		-r (bash regex) - regex which matches IP
+		-W (integer, seconds) warning threshold
+		-C (integer, seconds) critical timeout
+		-D (flag) enable debugging
+		
+EndOfUsage
+
+}
+
+
 function debug_message
 {
 	if [[ "$DEBUG_MESSAGES" == 1 ]]
@@ -53,6 +84,12 @@ function clean_up_and_exit
 	
 	local duration="$(($end_time-$start_time))"
 
+	if [ "$duration" -ge "$duration_warning" ]
+	then
+		$nagios_exit=1
+		$nagios_status="WARNING"
+	fi
+	
 	kill_pid_from_file "$dhclient_pid_file"
 	kill_pid_from_file "$wpa_pid_file"	
 
