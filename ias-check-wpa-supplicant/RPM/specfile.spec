@@ -2,4 +2,4 @@
 # when the package is built.
 #
 # RPM dependencies are whitespace separated
-# Requires:
+Requires: wpa_supplicant
