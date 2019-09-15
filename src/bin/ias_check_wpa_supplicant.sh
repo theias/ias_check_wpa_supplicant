@@ -164,7 +164,7 @@ debug_message "wpa_pid_file: $wpa_pid_file"
 # q - suppress debugging info
 # B - daemonize
 wpa_supplicant \
-	- q \
+	-q \
 	-B \
 	-i "$device" \
 	-c "$config" \
