@@ -62,13 +62,15 @@ DEBUG_MESSAGES=0
 wanted_ip_regex='/24$'
 device=""
 wpa_supplicant_config="~/.config/IAS/ias-check-wpa-supplicant/wpa_supplicant.conf"
-dhclient_config="~/.config/IAS/ias-check-wpa-supplicant/dhclient.conf"
+dhclient_config="/etc/dhcp/dhclient.conf"
 duration_warning=15
 duration_critical=45
 stay_connected=0
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 . "$DIR/bash_lib.sh"
+
+dhclient_script="${DIR}/dhclient-script"
 
 start_time=$( date +%s )
 nagios_service_name="ias-check-wpa-supplicant $device $wpa_supplicant_config"
@@ -192,6 +194,9 @@ debug_message "Running dhclient."
 dhclient_pid_file=$(mktemp /tmp/ias-check-wpa-supplicant_dhclient_pid.XXXXXX)
 debug_message "dhclient_pid_file: $dhclient_pid_file"
 
+# 	-sf $dhclient_script \
+# ^^ That's what we need to get working in order to not break
+# other network config on the box.
 dhclient \
 	-cf $dhclient_config \
 	-pf "$dhclient_pid_file" \
