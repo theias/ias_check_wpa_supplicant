@@ -93,10 +93,10 @@ while getopts ":d:c:p:r:s:W:C:D" o; do
 			wanted_ip_regex="${OPTARG}"
 			;;
 		W)
-			warning_threshold="${OPTARG}"
+			duration_warning="${OPTARG}"
 			;;
 		C)
-			critical_threshold="${OPTARG}"
+			duration_critical="${OPTARG}"
 			;;
 		D)
 			DISPLAY_MESSAGES=1
