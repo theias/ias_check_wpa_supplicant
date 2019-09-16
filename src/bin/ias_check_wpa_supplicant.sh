@@ -23,9 +23,9 @@
 # DESIGN GOALS
 #	* Not otherwise break networking on the box
 #
-# USAGE
+# USAGE / INSTALLATION
 #	* It must be run as root.
-#	* THe device must already be in the "DOWN" state when the script starts.
+#	* The device must already be in the "DOWN" state when the script starts.
 #
 # You'll want Network Manager to be disabled for the interface.
 # You can accomplish this by adding the following to Network Manager's
@@ -39,6 +39,14 @@
 #	Make sure mac is lower case. Separated by semicolons.
 #	unmanaged-devices=mac:c0:ff:ee:c0:ff:ee
 ####
+#
+# If your system uses apparmor, you (might) need to add to the file  
+# /etc/apparmor.d/sbin.dhclient
+# under the line that has /sbin/dhclient-script Uxr :
+#
+#    /opt/IAS/bin/ias-check-wpa-supplicant/dhclient-script Uxr,
+#
+# This will allow dhclient to use it with apparmor enabled.
 #
 # LICENSE
 # copyright (c) 2019 Martin VanWinkle, Institute for Advanced Study
@@ -201,6 +209,7 @@ debug_message "dhclient_pid_file: $dhclient_pid_file"
 # ^^ That's what we need to get working in order to not break
 # other network config on the box.
 dhclient \
+ 	-sf $dhclient_script \
 	-cf $dhclient_config \
 	-pf "$dhclient_pid_file" \
 	"$device" &
