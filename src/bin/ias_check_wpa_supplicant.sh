@@ -59,7 +59,7 @@
 
 DEBUG_MESSAGES=0
 
-wanted_ip_regex='\/24$'
+wanted_ip_regex='/24$'
 device=""
 wpa_supplicant_config="~/.config/IAS/ias-check-wpa-supplicant/wpa_supplicant.conf"
 dhclient_config="~/.config/IAS/ias-check-wpa-supplicant/dhclient.conf"
