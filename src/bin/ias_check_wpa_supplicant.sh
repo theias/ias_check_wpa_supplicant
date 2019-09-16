@@ -168,6 +168,9 @@ debug_message "wpa_pid_file: $wpa_pid_file"
 
 # q - suppress debugging info
 # B - daemonize
+
+trap clean_up_and_exit INT
+
 wpa_supplicant \
 	-q \
 	-B \
