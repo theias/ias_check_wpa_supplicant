@@ -5,7 +5,8 @@ function debug_options
 	>&2 cat <<EndOfDebugOptions
 OPTIONS DEBUG:
 	device: $device
-	config: $config
+	wpa_supplicant_config: $wpa_supplicant_config
+	dhclient_config: $dhclient_config
 	wanted_ip_regex: $wanted_ip_regex
 	stay_connected: $stay_connected
 	duration_warning: $duration_warning
@@ -22,8 +23,10 @@ Usage:
     -h help
     -d device.  Required.
     -c WPA supplicant config file.
-       Default: $config .
+       Default: $wpa_supplicant_config .
        See man wpa_supplicant.conf
+    -p dhclient config file.
+       Default: $dhclient_config
     -r (bash regex) - regex which matches IP.  Default: $wanted_ip_regex
     -s (integer, seconds) - stay connected.  Default: $stay_connected
     -W (integer, seconds) warning threshold. Default: $duration_warning
@@ -99,8 +102,11 @@ function clean_up_and_exit
 	
 	if [ "$duration" -ge "$duration_warning" ]
 	then
-		$nagios_exit=1
-		$nagios_status="WARNING"
+		if [ "$nagios_exit" -lt "1" ]
+		then
+			nagios_exit=1
+			nagios_status="WARNING"
+		fi
 	fi
 	
 	kill_pid_from_file "$dhclient_pid_file"

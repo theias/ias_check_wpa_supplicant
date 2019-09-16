@@ -61,8 +61,8 @@ DEBUG_MESSAGES=0
 
 wanted_ip_regex='\/24$'
 device=""
-config="~/.config/IAS/ias_check_wpa_supplicant/wpa_supplicant.conf"
-
+wpa_supplicant_config="~/.config/IAS/ias-check-wpa-supplicant/wpa_supplicant.conf"
+dhclient_config="~/.config/IAS/ias-check-wpa-supplicant/dhclient.conf"
 duration_warning=15
 duration_critical=45
 stay_connected=0
@@ -71,18 +71,21 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 . "$DIR/bash_lib.sh"
 
 start_time=$( date +%s )
-nagios_service_name="ias_check_wpa_supplicant $device $config"
+nagios_service_name="ias-check-wpa-supplicant $device $wpa_supplicant_config"
 
 nagios_status="OK"
 nagios_exit="0"
 
-while getopts ":d:c:r:s:W:C:D" o; do
+while getopts ":d:c:p:r:s:W:C:D" o; do
 	case "${o}" in
 		d)
 			device="${OPTARG}"
 			;;
 		c)
-			config="${OPTARG}"
+			wpa_supplicant_config="${OPTARG}"
+			;;
+		p)
+			dhclient_config="${OPTARG}"
 			;;
 		r)
 			wanted_ip_regex="${OPTARG}"
@@ -135,11 +138,11 @@ then
 	clean_up_and_exit "$device is not down"
 fi
 
-if [[ ! -f "$config" ]]
+if [[ ! -f "$wpa_supplicant_config" ]]
 then
 	nagios_status="UNKNOWN"
 	nagios_exit=3
-	clean_up_and_exit "Error: config file doesn't exist or is unspecified."
+	clean_up_and_exit "Error: wpa_supplicant config file, $wpa_supplicant_config , doesn't exist or is unspecified."
 fi
 
 if [[ -z "$wanted_ip_regex" ]]
@@ -156,7 +159,7 @@ fi
 
 ip addr flush dev "$device"
 
-wpa_pid_file=$(mktemp /tmp/ias_check_wpa_supplicant-wpa_supplicant_pid.XXXXXX)
+wpa_pid_file=$(mktemp /tmp/ias-check-wpa-supplicant_wpa_supplicant_pid.XXXXXX)
 
 debug_message "Running wpa_supplicant."
 debug_message "wpa_pid_file: $wpa_pid_file"
@@ -167,7 +170,7 @@ wpa_supplicant \
 	-q \
 	-B \
 	-i "$device" \
-	-c "$config" \
+	-c "$wpa_supplicant_config" \
 	-P "$wpa_pid_file" \
 	> /dev/null
 
@@ -186,10 +189,13 @@ debug_message "Running dhclient."
 # If we create a dhclient process with a unique file name
 # we can just look it up later using that name and kill the
 # pid.  This is referenced to as a "dirty kill".
-dhclient_pid_file=$(mktemp /tmp/ias_check_wpa_supplicant-dhclient_pid.XXXXXX)
+dhclient_pid_file=$(mktemp /tmp/ias-check-wpa-supplicant_dhclient_pid.XXXXXX)
 debug_message "dhclient_pid_file: $dhclient_pid_file"
 
-dhclient -pf "$dhclient_pid_file" "$device" &
+dhclient \
+	-cf $dhclient_config \
+	-pf "$dhclient_pid_file" \
+	"$device" &
 
 found_ip=""
 
