@@ -222,7 +222,12 @@ case "$reason" in
 			if_metric=${if_metric:-1}
 		    fi
 
-# Don't add routers.
+
+			for router in $new_routers; do
+				ip -4 route add ${router} dev $interface >/dev/null 2>&1
+			done
+			
+# Don't add routers in the regular manner..
 #		    for router in $new_routers; do
 #			if [ "$new_subnet_mask" = "255.255.255.255" ]; then
 #			    # point-to-point connection => set explicit route
