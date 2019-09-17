@@ -61,6 +61,12 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
+# KNOWN ISSUES / BUGS
+#
+# If you see a message (when using -D flag) about a problem with rfkill,
+# you might need to enable wireless via NetworkManager (I need to
+# research how to do this from the command line).
+#
 # DEBUGGING
 #	Turn "DEBUG_MESSAGES" to 1.
 #
