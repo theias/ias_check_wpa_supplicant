@@ -75,7 +75,7 @@ DEBUG_MESSAGES=0
 
 wanted_ip_regex='/24$'
 device=""
-wpa_supplicant_config="~/.config/IAS/ias-check-wpa-supplicant/wpa_supplicant.conf"
+wpa_supplicant_config="$HOME/.config/IAS/ias-check-wpa-supplicant/wpa_supplicant.conf"
 dhclient_config="/etc/dhcp/dhclient.conf"
 duration_warning=15
 duration_critical=45
