@@ -1,6 +1,6 @@
 ias-check-wpa-supplicant 1.0.0-0 noarch; urgency=low
 
-	* initial packaging stuff
+	* Initial Release
 
- -- YOUR NAME HERE YOUR@EMAIL.HERE  
+ -- Martin VanWinkle (mvanwinkle@ias.edu) Thu, 19 Sep 2019 09:20:10 -0400
 
