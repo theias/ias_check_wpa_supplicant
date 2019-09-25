@@ -67,7 +67,8 @@ function kill_pid_from_file
 		then
 		
 			debug_message "Killing $pid from $file_name"
-			kill $pid
+			kill $pid 2>/dev/null
+			wait $pid 2>/dev/null
 			rm -f "$file_name"
 		else
 			debug_message "Didn't get pid from $file_name .  Going for dirty kill..."
@@ -80,7 +81,9 @@ function kill_pid_from_file
 			)
 
 			debug_message "Killing $pid from $file_name"
-			kill $pid
+			kill $pid 2>/dev/null
+			wait $pid 2>/dev/null
+
 			
 		fi
 	fi
