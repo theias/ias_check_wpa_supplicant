@@ -93,7 +93,7 @@ start_time=$( date +%s )
 nagios_status="OK"
 nagios_exit="0"
 
-while getopts ":d:c:p:r:s:W:C:D:m" o; do
+while getopts ":d:c:p:r:s:W:C:Dm" o; do
 	case "${o}" in
 		d)
 			device="${OPTARG}"
