@@ -210,7 +210,7 @@ fi
 
 if [[ "$more_info" == "1" ]]
 then
-	iwconfig_output="$(iwconfig | $DIR/iwconfig-parser.pl --mode json --pretty )"
+	iw_link_output="$( iw dev "$device" link| $DIR/iw-dev-link-parser.pl --mode json --pretty )"
 fi
 
 debug_message "Running dhclient."
