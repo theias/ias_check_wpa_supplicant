@@ -1,3 +1,3 @@
-Depends: wpasupplicant
+Depends: wpasupplicant,libjson-perl
 
 
