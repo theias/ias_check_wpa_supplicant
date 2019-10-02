@@ -63,6 +63,21 @@ sub parse_iwconfig_output
 sub decide_what_to_do
 {
 	my ($iwconfig_data, $line_part) = @_;
+
+=pod
+
+The output of iwconfig seems silly.
+
+Some fields are delimited by ": ", or ":", or "=".
+But, the bytes in the access point are also separated by ":".
+
+So, we come up with a priority for parsing things.
+
+If it has a ": " in it, that means "Left side: right side", and we're done.
+If it has a ":" in it, then that means "Left side:right side", and we're done.
+If it has a "=" in it, that means "Left side=right side", and we're done.
+
+=cut
 	
 	my $data_parts = [];
 	my @parse_priorities = (': ', ':', '=');
