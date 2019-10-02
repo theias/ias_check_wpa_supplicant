@@ -208,11 +208,6 @@ then
 	exit 3
 fi
 
-if [[ "$more_info" == "1" ]]
-then
-	iw_link_output=$( iw dev "$device" link| $DIR/iw-dev-link-parser.pl --mode json --pretty )
-fi
-
 debug_message "Running dhclient."
 # Here, we have a kuldgy work around to dhclient and apparmor.
 # If we create a dhclient process with a unique file name
@@ -251,6 +246,14 @@ do
 	debug_message "Result from check_for_ip_br : $result"
 	if [[ "$result" == "0" ]]
 	then
+		if [[ "$more_info" == "1" ]]
+		then
+			iw_link_output=$( \
+				iw dev "$device" link \
+				| $DIR/iw-dev-link-parser.pl --mode json --pretty \
+			)
+		fi
+
 		clean_up_and_exit "Got ip: $found_ip"
 	fi
 	
