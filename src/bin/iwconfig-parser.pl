@@ -8,6 +8,7 @@ my $iwconfig_command = 'iwconfig wlp2s0';
 my $output = `$iwconfig_command`;
 
 use Data::Dumper;
+$Data::Dumper::Sortkeys=1;
 
 print Dumper(parse_iwconfig_output($output)),$/;
 
@@ -42,15 +43,40 @@ sub parse_iwconfig_output
 	$ssid_parts->[1] =~ s/"$//;
 	
 	$iwconfig_data->{$ssid_parts->[0]} = $ssid_parts->[1];
-
-	$line = shift @iwconfig_lines;
 	
 	foreach $line (@iwconfig_lines)
 	{
-	  
+		$line =~ s/^\s*//;
+		$line =~ s/\s*$//;
+		
+		$line_parts = parse_double_space_delimited_data($line);
+		
+		foreach my $line_part (@$line_parts)
+		{
+			decide_what_to_do($iwconfig_data, $line_part);
+		}
 	}
 	
 	return $iwconfig_data;
+}
+
+sub decide_what_to_do
+{
+	my ($iwconfig_data, $line_part) = @_;
+	
+	my $data_parts = [];
+	my @parse_priorities = (': ', ':', '=');
+	
+	PARSE_PRIORITY: foreach my $parse_priority (@parse_priorities)
+	{
+		if ($line_part =~ m/$parse_priority/)
+		{
+			my $ar = parse_arbitary_delimited($parse_priority, $line_part);
+			$iwconfig_data->{$ar->[0]} = $ar->[1];
+			return;
+		}
+	}
+	print STDERR "MISSED: $line_part\n";
 }
 
 sub parse_arbitary_delimited
