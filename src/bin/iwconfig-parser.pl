@@ -14,7 +14,7 @@ $Data::Dumper::Indent=1;
 
 use IAS::IWConfig::Parser;
 
-my $iwconfig_command = 'iwconfig wlp2s0';
+my $iwconfig_command = 'iwconfig';
 
 my $output = `$iwconfig_command`;
 

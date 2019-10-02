@@ -2,36 +2,68 @@ package IAS::IWConfig::Parser;
 
 sub parse_iwconfig_output
 {
-	my ($iwconfig_output) = @_;
+	my ($iwconfig_output, $iwconfig_data) = @_;
 
-
+	$iwconfig_data ||= {};
+	
 	my @iwconfig_lines = split(/\n/, $iwconfig_output);
 
 	my $iwconfig_data = {};
 
 	# The first line
-	#   Begins with the device name ^\S+
-	#   Has whitespace \s+
-	#   Then we grab the rest of the line (.*)
-	#   Which contains IEEE 802.11 , and the ESSID
-	my $line = shift @iwconfig_lines;
-	$line =~ m/^\S+\s+(.*)$/;
-
-	my $first_rest = $1;
-
-	my $line_parts = parse_double_space_delimited_data($first_rest);
-
-	$iwconfig_data->{__type} = shift @$line_parts;
-
-	my $ssid_parts = parse_arbitary_delimited(':',shift @$line_parts);
-
-	$ssid_parts->[1] =~ s/^"//;
-	$ssid_parts->[1] =~ s/"$//;
+	#  Begins with the device name ^\S+
+	#  Has whitespace \s+
+	#  Then we grab the rest of the line (.*)
+	#  Which contains IEEE 802.11 , and the ESSID
+	#  unless it doesn't have wireless extensions.
 	
-	$iwconfig_data->{$ssid_parts->[0]} = $ssid_parts->[1];
-	
-	foreach $line (@iwconfig_lines)
+	IWCONFIG_DEVICE: while (scalar @iwconfig_lines)
 	{
+		my $line = shift @iwconfig_lines;
+		$line =~ m/^(\S+)\s+(.*)$/;
+
+		my $device = $1;
+		my $device_data = {};
+		$iwconfig_data->{$device} = $device_data;
+		
+		my $first_rest = $2;
+
+		if ($first_rest =~ m/no wireless/)
+		{
+			# This probaby never gets run, because the output
+			# complaining about not having wireless extensions
+			# is printed to stderr
+			$device_data->{__type} = $first_rest;
+			next IWCONFIG_DEVICE;
+		}
+
+		my $line_parts = parse_double_space_delimited_data($first_rest);
+
+		$device_data->{__type} = shift @$line_parts;
+
+		my $ssid_parts = parse_arbitary_delimited(':',shift @$line_parts);
+
+		$ssid_parts->[1] =~ s/^"//;
+		$ssid_parts->[1] =~ s/"$//;
+		
+		$device_data->{$ssid_parts->[0]} = $ssid_parts->[1];
+
+		parse_continuing_lines($device_data, \@iwconfig_lines);
+	}	
+	return $iwconfig_data;
+}
+
+sub parse_continuing_lines
+{
+	my ($device_data, $iwconfig_lines) = @_;
+	
+	
+	while (scalar @$iwconfig_lines)
+	{
+		# Did we find the next device?
+		return if ($iwconfig_lines->[0] =~ m/^(\S)/);
+		
+		$line = shift (@$iwconfig_lines);
 		$line =~ s/^\s*//;
 		$line =~ s/\s*$//;
 		
@@ -39,16 +71,15 @@ sub parse_iwconfig_output
 		
 		foreach my $line_part (@$line_parts)
 		{
-			decide_what_to_do($iwconfig_data, $line_part);
+			decide_what_to_do($device_data, $line_part);
 		}
 	}
 	
-	return $iwconfig_data;
 }
 
 sub decide_what_to_do
 {
-	my ($iwconfig_data, $line_part) = @_;
+	my ($device_data, $line_part) = @_;
 
 =pod
 
@@ -73,7 +104,7 @@ If it has a "=" in it, that means "Left side=right side", and we're done.
 		if ($line_part =~ m/$parse_priority/)
 		{
 			my $ar = parse_arbitary_delimited($parse_priority, $line_part);
-			$iwconfig_data->{$ar->[0]} = $ar->[1];
+			$device_data->{$ar->[0]} = $ar->[1];
 			return;
 		}
 	}
@@ -106,8 +137,8 @@ sub trim_array_reference
 
 	foreach (@$ar)
 	{
-	  $_ =~s/^\s*//;
-	  $_ =~s/\s*$//;
+		$_ =~s/^\s*//;
+		$_ =~s/\s*$//;
 	}
 }
 
