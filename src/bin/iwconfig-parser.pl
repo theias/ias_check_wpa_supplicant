@@ -14,12 +14,70 @@ $Data::Dumper::Indent=1;
 
 use IAS::IWConfig::Parser;
 
-my $iwconfig_command = 'iwconfig';
+use Getopt::Long;
 
-my $output = `$iwconfig_command`;
+our %OUTPUT_MODE_DISPATCH = (
+	'json' => \&output_json,
+	'dumper' => \&output_dumper,
+);
 
-print Dumper(IAS::IWConfig::Parser::parse_iwconfig_output($output)),$/;
+my $OPTIONS_VALUES = {
+	'mode' => 'dumper',
+};
+
+my @OPTIONS = (
+	'mode=s',
+	'pretty!',
+);
+
+GetOptions(
+	$OPTIONS_VALUES,
+	@OPTIONS
+) or usage();
+
+if (
+	! defined $OUTPUT_MODE_DISPATCH{$OPTIONS_VALUES->{'mode'}})
+{
+	usage();
+}
+
+my $input;
+{
+	local $/;
+	$input = <STDIN>;
+}
+
+my $output = IAS::IWConfig::Parser::parse_iwconfig_output($input);
+$OUTPUT_MODE_DISPATCH{$OPTIONS_VALUES->{'mode'}}->($output);
+
 
 exit;
 
+sub output_dumper
+{
+	my ($output) = @_;
+	print Dumper($output),$/;
+}
+
+sub output_json
+{
+	my ($output) = @_;
+	my $json = JSON->new->allow_nonref();
+	$json->canonical([1]);
+	if ($OPTIONS_VALUES->{'pretty'})
+	{
+		$json->pretty([1]);
+	}
+	print $json->encode($output),$/;
+}
+
+sub usage
+{
+	print "Options:\n",$/;
+	print Dumper(\@OPTIONS);
+
+	print "\nModes:\n";
+	print "\t",join("\n\t", sort keys %OUTPUT_MODE_DISPATCH),$?;
+	exit 1;
+}
 
