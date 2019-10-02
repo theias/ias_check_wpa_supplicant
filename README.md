@@ -47,6 +47,18 @@ In src/bin:
 * run_me.sh - an example of how to run the script
 * bash_lib.sh - contains functions for this
 
+# Testing Status
+
+This check is known to work on the following systems:
+
+* Raspian Release 10
+* CentOS 7.7
+* Ubuntu 18.04
+
+This check DOESN'T work on the following systems:
+
+* Raspian Release 8 (it's missing the brief option to the "ip" command)
+
 # Supplemental Documentation
 
 Supplemental documentation for this project can be found here:

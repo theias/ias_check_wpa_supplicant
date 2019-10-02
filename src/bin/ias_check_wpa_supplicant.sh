@@ -87,7 +87,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 dhclient_script="${DIR}/dhclient-script"
 
 start_time=$( date +%s )
-nagios_service_name="ias-check-wpa-supplicant $device $wpa_supplicant_config"
+
 
 nagios_status="OK"
 nagios_exit="0"
@@ -126,6 +126,8 @@ while getopts ":d:c:p:r:s:W:C:D" o; do
 	esac
 done
 shift $((OPTIND-1))
+
+nagios_service_name="ias-check-wpa-supplicant $device $wpa_supplicant_config"
 
 if [[ "$DISPLAY_MESSAGES" == "1" ]]
 then
