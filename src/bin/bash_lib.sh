@@ -12,6 +12,7 @@ OPTIONS DEBUG:
 	duration_warning: $duration_warning
 	duration_critical: $duration_critical
 	DISPLAY_MESSAGES: $DISPLAY_MESSAGES
+	more_info: $more_info
 EndOfDebugOptions
 
 }
@@ -32,6 +33,8 @@ Usage:
     -W (integer, seconds) warning threshold. Default: $duration_warning
     -C (integer, seconds) critical timeout. Default: $duration_critical
     -D (flag) enable debugging
+    -m (flag) More info.  Currently runs "iwconfig <device>" and
+       displays json formatted data.
 
 "Duration" means the amount of time it took for the connection
 to be established.
@@ -124,6 +127,11 @@ function clean_up_and_exit
 	if [[ ! -z "$msg" ]]
 	then
 		echo $msg
+	fi
+	
+	if [[ "$more_info" == "1" ]]
+	then
+		echo "$iwconfig_output"
 	fi
 	
 	exit $nagios_exit

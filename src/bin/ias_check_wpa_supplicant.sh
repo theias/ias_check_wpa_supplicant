@@ -80,6 +80,7 @@ dhclient_config="/etc/dhcp/dhclient.conf"
 duration_warning=15
 duration_critical=45
 stay_connected=0
+more_info=0
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 . "$DIR/bash_lib.sh"
@@ -92,7 +93,7 @@ start_time=$( date +%s )
 nagios_status="OK"
 nagios_exit="0"
 
-while getopts ":d:c:p:r:s:W:C:D" o; do
+while getopts ":d:c:p:r:s:W:C:D:m" o; do
 	case "${o}" in
 		d)
 			device="${OPTARG}"
@@ -118,7 +119,9 @@ while getopts ":d:c:p:r:s:W:C:D" o; do
 		s)
 			stay_connected="${OPTARG}"
 			;;
-
+		m)
+			more_info=1
+			;;
 		h | *)
 			doc_usage
 			exit 1
@@ -203,6 +206,11 @@ then
 	nagios_exit=3
 	clean_up_and_exit "wpa_supplicant exited with $result"
 	exit 3
+fi
+
+if [[ "$more_info" == "1" ]]
+then
+	iwconfig_output="$(iwconfig | $DIR/iwconfig-parser.pl --mode json --pretty )"
 fi
 
 debug_message "Running dhclient."
