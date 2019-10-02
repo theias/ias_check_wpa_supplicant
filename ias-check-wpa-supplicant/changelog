@@ -1,3 +1,9 @@
+ias-check-wpa-supplicant 1.2.0-1 noarch; urgency=low
+
+	* More information when connected
+
+  -- Martin VanWinkle (mvanwinkle@ias.edu) Tue, 01 Oct 2019 22:59:32 -0400
+
 ias-check-wpa-supplicant 1.2.0-0 noarch; urgency=low
 
 	* Some improvements
