@@ -220,8 +220,8 @@ debug_message "dhclient_pid_file: $dhclient_pid_file"
 # ^^ That's what we need to get working in order to not break
 # other network config on the box.
 dhclient \
- 	-sf $dhclient_script \
-	-cf $dhclient_config \
+ 	-sf "$dhclient_script" \
+	-cf "$dhclient_config" \
 	-pf "$dhclient_pid_file" \
 	"$device" &
 
@@ -250,7 +250,7 @@ do
 		then
 			iw_link_output=$( \
 				iw dev "$device" link \
-				| $DIR/iw-dev-link-parser.pl --mode json --pretty \
+				| "$DIR"/iw-dev-link-parser.pl --mode json --pretty \
 			)
 		fi
 
